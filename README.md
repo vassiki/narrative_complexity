@@ -12,3 +12,14 @@ Potential directions for the project
 - Assess consistency of the narrative across different 
     segments of movies
 - Compare consistency of movie content and critical reviews
+
+
+# Setup
+
+To initialize the `cluster-tools` module and switch to the `eventseg` branch (needed to run the analyses on the Discovery cluster), run the following (in Terminal, from within the narrative_complexity directory):
+
+```
+git submodule update --init
+cd code/cluster-tools-dartmouth
+git checkout eventseg
+```
