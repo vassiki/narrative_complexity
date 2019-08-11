@@ -1,4 +1,31 @@
+# Overview
+
 A hackathon project initiated at [MIND 2019](https://mindsummerschool.org/current_year.html) at Dartmouth College.
+
+High-level idea: create narrative trajectories (kind of like [these](https://github.com/ContextLab/sherlock-topic-model-paper)) for movie scripts mined from IMDB.  Then relate various aspects of those trajectories and/or the contents of the scripts to interesting things like:
+- movie ratings and reviews
+- genre
+- box office success (money made, number of tickets sold, etc.)
+- etc.
+
+# Setup
+
+To initialize the `cluster-tools` module and switch to the `eventseg` branch (needed to run the analyses on the Discovery cluster), run the following (in Terminal, from within the narrative_complexity directory):
+
+```
+git submodule update --init
+cd code/cluster-tools-dartmouth
+git checkout eventseg
+```
+
+Install all project requirements by running (from within the project folder):
+```
+pip install -r requirements.txt
+```
+
+Then run (from within `Jupyter Lab` or a `Jupypter notebook`) any of the `.ipynb` files.
+
+# Brainstorm
 
 Potential directions for the project
 - Create a database of semantic content of movies that
@@ -12,14 +39,3 @@ Potential directions for the project
 - Assess consistency of the narrative across different 
     segments of movies
 - Compare consistency of movie content and critical reviews
-
-
-# Setup
-
-To initialize the `cluster-tools` module and switch to the `eventseg` branch (needed to run the analyses on the Discovery cluster), run the following (in Terminal, from within the narrative_complexity directory):
-
-```
-git submodule update --init
-cd code/cluster-tools-dartmouth
-git checkout eventseg
-```
