@@ -88,7 +88,7 @@ def cleanup_text(transcript):
     return spaced
 
 
-def get_windows(transcript, wsize=video_wsize):
+def get_windows(transcript, wsize):
     cleaned = cleanup_text(wipe_formatting(transcript))
     text_list = cleaned.split('.')
     video_w = []
@@ -99,7 +99,7 @@ def get_windows(transcript, wsize=video_wsize):
     return video_w
 
 
-def topic_model(transcript, vec_params=vectorizer_params, sem_params=semantic_params, return_windows=False):
+def topic_model(transcript, vec_params, sem_params, return_windows=False):
     windows = get_windows(transcript)
     # handle movies with missing or useless transcripts
     if len(windows) < 10:
