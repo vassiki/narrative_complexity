@@ -6,4 +6,6 @@ markdown
 bs4
 textblob
 seaborn
+num2words
+nltk
 brainiak
