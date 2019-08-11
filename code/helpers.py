@@ -5,7 +5,7 @@ import brainiak.eventseg.event as event
 import hypertools.tools.format_data as fit_transform
 from num2words import num2words
 from bs4 import BeautifulSoup
-from downloader import download_file_from_google_drive as dl
+# from downloader import download_file_from_google_drive as dl
 
 
 def download_file_from_google_drive(id, destination):
