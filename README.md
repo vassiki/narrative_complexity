@@ -25,6 +25,10 @@ pip install -r requirements.txt
 
 Then run (from within `Jupyter Lab` or a `Jupypter notebook`) any of the `.ipynb` files.
 
+# Presentation
+
+Our hackathon presentation may be found [here](https://docs.google.com/presentation/d/1pWY2tV-5vg0wTS-ujJM0wq9TBW_hfLN1kz_Bud37cR0/edit?usp=sharing).
+
 # Brainstorm
 
 Potential directions for the project
