@@ -1,0 +1,4 @@
+[submodule "code/cluster-tools-dartmouth"]
+	path = code/cluster-tools-dartmouth
+	url = https://github.com/paxtonfitzpatrick/cluster-tools-dartmouth.git
+	branch = mind2019
