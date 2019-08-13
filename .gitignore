@@ -3,3 +3,4 @@ data
 data/*
 *checkpoints*
 *__pycache__*
+*.joblib
