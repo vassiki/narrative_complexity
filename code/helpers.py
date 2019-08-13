@@ -74,6 +74,12 @@ def wipe_formatting(script, rehtml=False):
 
 
 def wipe_acting_instructions_from_dialogue(line):
+    # In many scripts, pieces of dialogue will start with acting instructions in parentheses. For example:
+    #       JOHN
+    #   (whincing in pain)
+    #   Ouch!
+    #
+    # This function erases those acting instructions, so that only the true spoken dialogue remains.
     if len(re.findall('\([\w\s]+\)',line)) > 0:
         start, end = re.search('\([\w\s+]+\)',line).span()
         line = line[0:start] + line[end+1:]
@@ -87,7 +93,7 @@ def cleanup_text(transcript):
     return spaced
 
 
-def get_windows(transcript, wsize):
+def get_windows(transcript, wsize = 50):
     cleaned = cleanup_text(wipe_formatting(transcript))
     text_list = cleaned.split('.')
     video_w = []
@@ -98,11 +104,29 @@ def get_windows(transcript, wsize):
     return video_w
 
 
-def topic_model(transcript, vec_params, sem_params, return_windows=False):
+def topic_model(transcript, vec_params = None, sem_params = None, return_windows=False):
     windows = get_windows(transcript)
     # handle movies with missing or useless transcripts
     if len(windows) < 10:
         return np.nan
+    
+    if not vec_params:
+        vec_params = {
+            'model' : 'CountVectorizer', 
+            'params' : {
+                'stop_words' : sw.words('english')
+            }
+        }
+
+    if not sem_params:
+        sem_params = {
+            'model' : 'LatentDirichletAllocation', 
+            'params' : {
+                'n_components' : 100,
+                'learning_method' : 'batch',
+                'random_state' : 0,
+            }
+        }
 
     traj = fit_transform(windows, vectorizer=vec_params, semantic=sem_params, corpus=windows)[0]
 
