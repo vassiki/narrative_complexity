@@ -1,23 +1,41 @@
-import os
-import re
-import nltk
-import html2text
-import markdown
+import os, re, nltk, html2text, markdown, requests
 import numpy as np
 import pandas as pd
 import brainiak.eventseg.event as event
 import hypertools.tools.format_data as fit_transform
 from num2words import num2words
 from bs4 import BeautifulSoup
-from downloader import download_file_from_google_drive as dl
 
-nltk.download('stopwords')
-from nltk.corpus import stopwords as sw
 
-data_filepath = '../../data/data.csv'
-data_fileID = '1hCCn31z4HM4IzQi59DP-vvUpYKhlvo2S'
-# possible numbers of events to try for each transcript
-ks_list = list(range(2, 75))
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+
+    save_response_content(response, destination)    
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
 
 def load_data(filepath, fileid):
     data_dir = os.path.dirname(filepath)
@@ -55,6 +73,19 @@ def wipe_formatting(script, rehtml=False):
     return soup
 
 
+def wipe_acting_instructions_from_dialogue(line):
+    # In many scripts, pieces of dialogue will start with acting instructions in parentheses. For example:
+    #       JOHN
+    #   (whincing in pain)
+    #   Ouch!
+    #
+    # This function erases those acting instructions, so that only the true spoken dialogue remains.
+    if len(re.findall('\([\w\s]+\)',line)) > 0:
+        start, end = re.search('\([\w\s+]+\)',line).span()
+        line = line[0:start] + line[end+1:]
+    return line
+
+
 def cleanup_text(transcript):
     lower_nopunc = re.sub("[^\w\s.]+", '', transcript.lower())    # remove all punctuation except periods (deliminers)
     no_digit = re.sub(r"(\d+)", lambda x: num2words(int(x.group(0))), lower_nopunc)    # convert digits to words
@@ -62,7 +93,7 @@ def cleanup_text(transcript):
     return spaced
 
 
-def get_windows(transcript, wsize=video_wsize):
+def get_windows(transcript, wsize = 50):
     cleaned = cleanup_text(wipe_formatting(transcript))
     text_list = cleaned.split('.')
     video_w = []
@@ -73,11 +104,29 @@ def get_windows(transcript, wsize=video_wsize):
     return video_w
 
 
-def topic_model(transcript, vec_params=vectorizer_params, sem_params=semantic_params, return_windows=False):
+def topic_model(transcript, vec_params = None, sem_params = None, return_windows=False):
     windows = get_windows(transcript)
     # handle movies with missing or useless transcripts
     if len(windows) < 10:
         return np.nan
+    
+    if not vec_params:
+        vec_params = {
+            'model' : 'CountVectorizer', 
+            'params' : {
+                'stop_words' : sw.words('english')
+            }
+        }
+
+    if not sem_params:
+        sem_params = {
+            'model' : 'LatentDirichletAllocation', 
+            'params' : {
+                'n_components' : 100,
+                'learning_method' : 'batch',
+                'random_state' : 0,
+            }
+        }
 
     traj = fit_transform(windows, vectorizer=vec_params, semantic=sem_params, corpus=windows)[0]
 
@@ -135,25 +184,3 @@ def tm_handle_bad(transcript, **kwargs):
     # often IndexError due to script being all newlines
     except:
         return np.nan
-
-
-########################## MAIN SCRIPT ##########################
-# download and load data
-data_df = load_data(data_filepath, fileid=data_fileID)
-
-# fit topic model, transform script
-data_df['trajectory'] = data_df.script.apply(tm_handle_bad)
-
-# drop rows where script content couldn't be modeled
-data_df.dropna(inplace=True)
-
-# determine number of events for segmentation
-data_df['n_events'] = data_df.trajectory.apply(optimize_k, ks_list=ks_list)
-
-# segment trajectory based on that number
-data_df[['segments', 'event onsets/offsets']] = data_df.apply(lambda x:
-    segment_trajectory(x['trajectory'], x['n_events']),
-    result_type='expand', axis=1)
-
-# save out updated data
-data_df.to_csv('../data_modeled.csv')
