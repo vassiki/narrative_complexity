@@ -1,6 +1,7 @@
 hypertools
 numpy
 pandas
+modin
 html2text
 markdown
 bs4
@@ -9,3 +10,10 @@ seaborn
 num2words
 nltk
 brainiak
+num2words
+sklearn
+flair
+tensorflow
+configparser
+six
+joblib
