@@ -45,7 +45,7 @@ def load_data(filepath, fileid):
 
     if not os.path.exists(filepath):
         print('downloading data...')
-        dl(fileid, filepath)
+        download_file_from_google_drive(fileid, filepath)
 
     print('loading data...')
     data = pd.read_csv(filepath)
@@ -71,6 +71,12 @@ def wipe_formatting(script, rehtml=False):
     soup=soup.get_text()
     soup = soup.replace('\n', ' ')
     return soup
+
+def cleanup_text(transcript):
+    lower_nopunc = re.sub("[^\w\s.]+", '', transcript.lower())    # remove all punctuation except periods (deliminers)
+    no_digit = re.sub(r"(\d+)", lambda x: num2words(int(x.group(0))), lower_nopunc)    # convert digits to words
+    spaced = ' '.join(no_digit.replace(',', ' ').split())    # deal with inconsistent whitespace
+    return spaced
 
 
 def wipe_acting_instructions_from_dialogue(line):
