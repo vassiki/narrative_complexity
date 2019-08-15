@@ -4,3 +4,4 @@ Data/data.csv
 *__pycache__*
 *.joblib
 figures/*.png
+code/notebooks/figs/*
