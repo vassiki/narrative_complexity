@@ -1,7 +1,7 @@
 import os, re, nltk, html2text, markdown, requests
 import numpy as np
 import pandas as pd
-#import brainiak.eventseg.event as event
+import brainiak.eventseg.event as event
 import hypertools.tools.format_data as fit_transform
 from num2words import num2words
 from bs4 import BeautifulSoup
@@ -19,7 +19,7 @@ def download_file_from_google_drive(id, destination):
         params = { 'id' : id, 'confirm' : token }
         response = session.get(URL, params = params, stream = True)
 
-    save_response_content(response, destination)    
+    save_response_content(response, destination)
 
 def get_confirm_token(response):
     for key, value in response.cookies.items():
@@ -115,10 +115,10 @@ def topic_model(transcript, vec_params = None, sem_params = None, return_windows
     # handle movies with missing or useless transcripts
     if len(windows) < 10:
         return np.nan
-    
+
     if not vec_params:
         vec_params = {
-            'model' : 'CountVectorizer', 
+            'model' : 'CountVectorizer',
             'params' : {
                 'stop_words' : sw.words('english')
             }
@@ -126,7 +126,7 @@ def topic_model(transcript, vec_params = None, sem_params = None, return_windows
 
     if not sem_params:
         sem_params = {
-            'model' : 'LatentDirichletAllocation', 
+            'model' : 'LatentDirichletAllocation',
             'params' : {
                 'n_components' : 100,
                 'learning_method' : 'batch',
@@ -190,14 +190,14 @@ def tm_handle_bad(transcript, **kwargs):
     # often IndexError due to script being all newlines
     except:
         return np.nan
-    
+
 def get_actor_char(mov):
-    
-    actors = mov['cast'] # get actors 
+
+    actors = mov['cast'] # get actors
     act = list()
     char = list()
     mov_name = list()
-    # loop through actors and get their respective chars 
+    # loop through actors and get their respective chars
     for a in actors:
         if len(a.currentRole) > 1:
             tmp_role = a.currentRole
@@ -211,7 +211,7 @@ def get_actor_char(mov):
                     act.append(a['name'])
                     char.append(a.currentRole['name'])
                     mov_name.append(mov['title'])
-                    
+
     return(act, char, mov_name)
 
 def fetch_movie_info(moviename):
@@ -226,7 +226,7 @@ def fetch_movie_info(moviename):
     return(tmp_movie)
 
 def get_reviews(mov):
-    
+
     review=list()
     rating=list()
     mov_name=list()
@@ -239,5 +239,5 @@ def get_reviews(mov):
                 mov_name.append(z['rating'])
             else:
                 mov_name.append('None')
-                
+
     return(review,rating,mov_name)
