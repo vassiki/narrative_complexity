@@ -190,8 +190,6 @@ def tm_handle_bad(transcript, **kwargs):
     # often IndexError due to script being all newlines
     except:
         return np.nan
-<<<<<<< HEAD
-=======
 
 def get_actor_char(mov):
 
@@ -243,4 +241,3 @@ def get_reviews(mov):
                 mov_name.append('None')
 
     return(review,rating,mov_name)
->>>>>>> 149b50bf999af1acce9e640b018f179dac2a3e56
