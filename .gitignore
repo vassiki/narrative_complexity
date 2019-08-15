@@ -1,6 +1,5 @@
 .DS_Store
-data
-data/*
+Data/data.csv
 *checkpoints*
 *__pycache__*
 *.joblib
