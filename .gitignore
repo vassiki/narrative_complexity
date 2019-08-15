@@ -4,3 +4,4 @@ data/*
 *checkpoints*
 *__pycache__*
 *.joblib
+figures/*.png

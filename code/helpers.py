@@ -5,7 +5,7 @@ import brainiak.eventseg.event as event
 import hypertools.tools.format_data as fit_transform
 from num2words import num2words
 from bs4 import BeautifulSoup
-
+from imdb import IMDb
 
 def download_file_from_google_drive(id, destination):
     URL = "https://docs.google.com/uc?export=download"
@@ -45,7 +45,7 @@ def load_data(filepath, fileid):
 
     if not os.path.exists(filepath):
         print('downloading data...')
-        dl(fileid, filepath)
+        download_file_from_google_drive(fileid, filepath)
 
     print('loading data...')
     data = pd.read_csv(filepath)
@@ -71,6 +71,12 @@ def wipe_formatting(script, rehtml=False):
     soup=soup.get_text()
     soup = soup.replace('\n', ' ')
     return soup
+
+def cleanup_text(transcript):
+    lower_nopunc = re.sub("[^\w\s.]+", '', transcript.lower())    # remove all punctuation except periods (deliminers)
+    no_digit = re.sub(r"(\d+)", lambda x: num2words(int(x.group(0))), lower_nopunc)    # convert digits to words
+    spaced = ' '.join(no_digit.replace(',', ' ').split())    # deal with inconsistent whitespace
+    return spaced
 
 
 def wipe_acting_instructions_from_dialogue(line):
@@ -184,3 +190,57 @@ def tm_handle_bad(transcript, **kwargs):
     # often IndexError due to script being all newlines
     except:
         return np.nan
+<<<<<<< HEAD
+=======
+
+def get_actor_char(mov):
+
+    actors = mov['cast'] # get actors
+    act = list()
+    char = list()
+    mov_name = list()
+    # loop through actors and get their respective chars
+    for a in actors:
+        if len(a.currentRole) > 1:
+            tmp_role = a.currentRole
+            for role in tmp_role:
+                if role.has_key('name'):
+                    act.append(a['name'])
+                    char.append(role['name'])
+                    mov_name.append(mov['title'])
+        else:
+            if a.currentRole.has_key('name'):
+                    act.append(a['name'])
+                    char.append(a.currentRole['name'])
+                    mov_name.append(mov['title'])
+
+    return(act, char, mov_name)
+
+def fetch_movie_info(moviename):
+    ia = IMDb()
+    # search the imdb data base for the anme of the movie
+    # grab the first movie and retrieve its movie id then fetch movie data
+    movies=ia.search_movie(moviename, results=10, _episodes=False)
+    tmp_id=movies[0].movieID
+    tmp_movie = ia.get_movie(tmp_id)
+    ia.update(tmp_movie,info = ['reviews'])
+
+    return(tmp_movie)
+
+def get_reviews(mov):
+
+    review=list()
+    rating=list()
+    mov_name=list()
+
+    for m in mov['reviews']:
+        mov_name.append(mov['title'])
+        if len(z['content']) >= 1:
+            review.append(z['content'])
+            if type(z['rating']) is not None:
+                mov_name.append(z['rating'])
+            else:
+                mov_name.append('None')
+
+    return(review,rating,mov_name)
+>>>>>>> 149b50bf999af1acce9e640b018f179dac2a3e56
